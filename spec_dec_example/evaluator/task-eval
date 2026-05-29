@@ -1,0 +1,27 @@
+#!/bin/bash
+# Entry point for the spec-dec swarm task.
+# Usage:
+#   ./task-eval                  # uses tier from $SPEC_DEC_TIER, default 'fast'
+#   ./task-eval --tier fast      # explicit tier override
+#   ./task-eval --tier medium
+#   ./task-eval --tier full
+set -e
+cd "$(dirname "$0")"
+
+TIER="${SPEC_DEC_TIER:-fast}"
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --tier) TIER="$2"; shift 2 ;;
+        --tier=*) TIER="${1#*=}"; shift ;;
+        *) echo "Unknown arg: $1"; exit 1 ;;
+    esac
+done
+export SPEC_DEC_TIER="$TIER"
+
+SPEC_DEC_ROOT="${SPEC_DEC_ROOT:-$HOME/spec-dec-work}"
+if [ -x "$SPEC_DEC_ROOT/venv/bin/python3" ]; then
+    PY="$SPEC_DEC_ROOT/venv/bin/python3"
+else
+    PY=python3
+fi
+exec "$PY" -u eval.py

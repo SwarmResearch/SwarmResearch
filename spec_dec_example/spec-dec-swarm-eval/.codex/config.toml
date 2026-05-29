@@ -1,0 +1,16 @@
+model = "gpt-5.5"
+model_reasoning_effort = "high"
+plan_mode_reasoning_effort = "high"
+approvals_reviewer = "user"
+
+[agents]
+max_threads = 20
+max_depth = 1
+job_max_runtime_seconds = 1800
+
+[notice.model_migrations]
+"gpt-5.2" = "gpt-5.3-codex"
+gpt-5-codex-mini = "gpt-5.4"
+
+[tui.model_availability_nux]
+"gpt-5.3-codex-spark" = 4

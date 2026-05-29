@@ -1,0 +1,29 @@
+# Build artifacts and runtime state
+logs/
+__pycache__/
+*.pyc
+*.pyo
+*.bak
+*~
+
+# llama.cpp build tree (cloned + built locally by setup.sh, not committed)
+llama.cpp/
+
+# Model files (downloaded by setup.sh, not committed)
+models/
+*.gguf
+
+# Python virtualenv
+venv/
+.venv/
+
+# Hidden evaluator contents live outside the repo; keep only evaluator/task-eval.
+evaluator/eval.py
+evaluator/prompts_*.jsonl
+evaluator/reference_*.jsonl
+
+# Editor / OS junk
+.DS_Store
+.idea/
+.vscode/
+*.swp
