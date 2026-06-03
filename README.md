@@ -1,7 +1,7 @@
-# swarmresearch
-*swarmresearch* is a set of skills to reduce coding agent tunnel-vision when solving open-ended optimization problems
+# Shepherd-Discovery
+*Shepherd-Discovery* is a set of skills to reduce coding agent tunnel-vision when solving open-ended optimization problems
 
-| Basic autoresearch | swarmresearch |
+| Basic autoresearch | Shepherd-Discovery |
 | --- | --- |
 | One agent makes slow progress refining one idea  | Concurrent agents quickly screen new ideas before long-tail refinement |
 | Keeping all improvements in one file biases agent towards small, greedy edits on one approach | All major edits are made in separate git branches making high-level changes easier |
@@ -11,7 +11,7 @@
 <div align="center">
   <img src="assets/evolution_graph_annotated_clean.png" alt="Evolution graph" width="700">
   <br>
-  <sub><em>Codex GPT-5.5 with swarmresearch skills designing speculative decoding algorithms. It achieves a 3.87× speedup over vanilla decoding on Spec-Bench, a 20% improvement over the baseline. Shepherd keeps exploring diverse approaches over ~3 hours rather than converging onto one. Productive optimizations combine and vary known methods. Each node is a spawned search agent and its solution. Edges indicate that the lower node builds on the solution above. The top node value shows spawn order; the bottom value shows speedup over vanilla decoding.</em></sub>
+  <sub><em>Codex GPT-5.5 with Shepherd-Discovery skills designing speculative decoding algorithms. It achieves a 3.87× speedup over vanilla decoding on Spec-Bench, a 20% improvement over the baseline. Shepherd keeps exploring diverse approaches over ~3 hours rather than converging onto one. Productive optimizations combine and vary known methods. Each node is a spawned search agent and its solution. Edges indicate that the lower node builds on the solution above. The top node value shows spawn order; the bottom value shows speedup over vanilla decoding.</em></sub>
 </div>
 
 ## When to use  
