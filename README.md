@@ -22,9 +22,9 @@ For an example, check out the [speculative decoding setup](spec_dec_example/).
 
 We recommend using `/goal` e.g. "/goal Follow the swarmresearch skill. Your search agent budget is 150. Keep going until you completely exhaust it. Your task and objective is in prompt.md."
 
-The existing skills are for Claude Code and Codex, but they can easily extended for any coding agent. The only change is in the `swarmresearch` skill, which specifies how to spawn non-interactive agent sessions since it differs between coding agents. 
+The existing skills are for Claude Code and Codex, but they can be easily extended for any coding agent. The only change is in the `swarmresearch` skill, which specifies commands to spawn non-interactive sessions which differs between coding agents. 
 
-**Managing Cost:** As a reference, a 50 agent ~3 hour run on speculative decoding with Codex GPT-5.5 High used up 7% of my weekly limits on ChatGPT Pro 5x (May 26, 2026). Compared to vanilla autoresearch, you can get farther in less time since agents test multiple ideas concurrently and don't get stuck in local optima.
+**Managing Cost:** As a reference, a 50 agent ~3 hour run on speculative decoding with Codex GPT-5.5 High used up 7% of my weekly limits on ChatGPT Pro 5x (May 26, 2026). Compared to vanilla autoresearch, you can get farther in less time since agents test multiple ideas concurrently and aren't stuck in local optima as much.
 
 ## Extending and editing the skills
 The skills are simple and adapting them is easy:
