@@ -1,0 +1,280 @@
+{
+  "mode": "target",
+  "n": 30,
+  "accuracy": 0.9333333333333333,
+  "mean_tok_s": 100.714,
+  "accept_rate": null,
+  "total_decoded": 261481,
+  "per_item": [
+    {
+      "uid": "aime-1-5-01",
+      "source": "aime",
+      "correct": true,
+      "decoded": 11307,
+      "tok_s": 100.46,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "aime-11-15-00",
+      "source": "aime",
+      "correct": true,
+      "decoded": 12345,
+      "tok_s": 100.23,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "aime-6-10-01",
+      "source": "aime",
+      "correct": true,
+      "decoded": 9081,
+      "tok_s": 100.94,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "gpqa-biol-01",
+      "source": "gpqa",
+      "correct": true,
+      "decoded": 2462,
+      "tok_s": 102.77,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "gpqa-biol-03",
+      "source": "gpqa",
+      "correct": true,
+      "decoded": 12529,
+      "tok_s": 100.01,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "gpqa-chem-06",
+      "source": "gpqa",
+      "correct": true,
+      "decoded": 4039,
+      "tok_s": 102.08,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "gpqa-phys-01",
+      "source": "gpqa",
+      "correct": true,
+      "decoded": 3052,
+      "tok_s": 102.46,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "gpqa-phys-06",
+      "source": "gpqa",
+      "correct": true,
+      "decoded": 5492,
+      "tok_s": 101.7,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "hle-math-00",
+      "source": "hle",
+      "correct": true,
+      "decoded": 9366,
+      "tok_s": 100.92,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "hle-othe-03",
+      "source": "hle",
+      "correct": true,
+      "decoded": 4782,
+      "tok_s": 102.01,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "lcb-hard-01",
+      "source": "lcb",
+      "correct": true,
+      "decoded": 11931,
+      "tok_s": 100.14,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "lcb-hard-06",
+      "source": "lcb",
+      "correct": true,
+      "decoded": 9050,
+      "tok_s": 100.57,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "lcb-medium-01",
+      "source": "lcb",
+      "correct": true,
+      "decoded": 2823,
+      "tok_s": 102.47,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "lcb-medium-04",
+      "source": "lcb",
+      "correct": true,
+      "decoded": 10184,
+      "tok_s": 100.14,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "lcb-medium-07",
+      "source": "lcb",
+      "correct": true,
+      "decoded": 12698,
+      "tok_s": 100.06,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "aime-1-5-02",
+      "source": "aime",
+      "correct": true,
+      "decoded": 7557,
+      "tok_s": 100.75,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "aime-11-15-01",
+      "source": "aime",
+      "correct": false,
+      "decoded": 16384,
+      "tok_s": 99.08,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "gpqa-biol-00",
+      "source": "gpqa",
+      "correct": true,
+      "decoded": 2771,
+      "tok_s": 102.01,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "gpqa-biol-02",
+      "source": "gpqa",
+      "correct": true,
+      "decoded": 4453,
+      "tok_s": 101.18,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "gpqa-chem-01",
+      "source": "gpqa",
+      "correct": true,
+      "decoded": 3085,
+      "tok_s": 101.76,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "gpqa-phys-00",
+      "source": "gpqa",
+      "correct": true,
+      "decoded": 5535,
+      "tok_s": 101.05,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "gpqa-phys-02",
+      "source": "gpqa",
+      "correct": true,
+      "decoded": 12222,
+      "tok_s": 99.67,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "hle-chem-04",
+      "source": "hle",
+      "correct": false,
+      "decoded": 13382,
+      "tok_s": 99.62,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "hle-math-02",
+      "source": "hle",
+      "correct": true,
+      "decoded": 10017,
+      "tok_s": 99.77,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "hle-phys-00",
+      "source": "hle",
+      "correct": true,
+      "decoded": 5653,
+      "tok_s": 101.02,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "lcb-hard-04",
+      "source": "lcb",
+      "correct": true,
+      "decoded": 11755,
+      "tok_s": 99.66,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "lcb-medium-00",
+      "source": "lcb",
+      "correct": true,
+      "decoded": 10733,
+      "tok_s": 99.94,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "lcb-medium-02",
+      "source": "lcb",
+      "correct": true,
+      "decoded": 10309,
+      "tok_s": 99.8,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "lcb-medium-06",
+      "source": "lcb",
+      "correct": true,
+      "decoded": 10100,
+      "tok_s": 100.12,
+      "n_drafted": 0,
+      "n_accept": 0
+    },
+    {
+      "uid": "lcb-medium-08",
+      "source": "lcb",
+      "correct": true,
+      "decoded": 16384,
+      "tok_s": 99.03,
+      "n_drafted": 0,
+      "n_accept": 0
+    }
+  ]
+}

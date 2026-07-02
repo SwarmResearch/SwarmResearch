@@ -1,0 +1,174 @@
+#!/usr/bin/env python3
+"""Single-command evaluator: build initial_program.cpp and run it on the lite_v1 benchmark,
+then report accuracy + throughput + speedup.
+
+Modes (implemented in ../initial_program.cpp -> ../spec_modes):
+  target    - autoregressive sampling from the target (baseline)
+  mtp-spec  - MTP drafts gamma tokens, target verifies, self-contained rejection sampling (lossless)
+
+Usage:
+  ./evaluator/task-eval                       # target + mtp-spec, all 30 items, GPUs 0,1
+  ./evaluator/task-eval --limit 4 --n 1024    # quick smoke
+  ./evaluator/task-eval --modes mtp-spec --gpus 4,5
+Env: LLAMA_DIR (llama.cpp checkout), MODELS_DIR (gguf dir).
+"""
+import argparse, json, os, re, subprocess, sys, threading
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent           # evaluator/ (data + scorers live here)
+ROOT = HERE.parent                               # package root (initial_program.cpp, spec_modes)
+LLAMA_DIR = Path(os.environ.get("LLAMA_DIR", "/home/yvirk2/llama.cpp"))
+MODELS = Path(os.environ.get("MODELS_DIR", "/home/yvirk2/approx-decoding/models/gemma-4-26B-A4B-it-GGUF"))
+TGT = MODELS / "gemma-4-26B-A4B-it-Q8_0.gguf"
+MTP = MODELS / "MTP" / "gemma-4-26B-A4B-it-Q8_0-MTP.gguf"
+SRC = ROOT / "initial_program.cpp"
+BIN = ROOT / "spec_modes"
+RESULTS = ROOT / "results"
+REFS = ROOT / "vanilla_references"          # fixed baselines, kept out of results/ so runs never overwrite them
+
+# Target-only baseline is fixed (computed once on the 30-item set); used for the speedup column
+# so we don't recompute it every run. Detail lives in vanilla_references/target.json.
+TARGET_REF = {"mode": "target (reference)", "n": 30, "accuracy": 0.9333, "mean_tok_s": 100.7,
+              "accept_rate": None}
+sys.path.insert(0, str(HERE))
+from scorers.text_scorers import score_aime, score_mcq          # noqa: E402
+from scorers.lcb_scorer import score_lcb                        # noqa: E402
+import jinja2
+
+
+def build_if_needed(rebuild):
+    if BIN.exists() and not rebuild and BIN.stat().st_mtime >= SRC.stat().st_mtime:
+        return
+    L = LLAMA_DIR
+    # fail fast with a clear message if this llama.cpp can't build initial_program.cpp
+    hdr, ext = L / "include" / "llama.h", L / "src" / "llama-ext.h"
+    have_mtp = (hdr.exists() and "LLAMA_CONTEXT_TYPE_MTP" in hdr.read_text()
+                and ext.exists() and "llama_set_embeddings_nextn" in ext.read_text())
+    have_libs = all((L / "build" / "bin" / so).exists()
+                    for so in ("libllama.so", "libllama-common.so", "libggml.so", "libggml-base.so"))
+    if not have_libs:
+        sys.exit(f"ERROR: LLAMA_DIR={L} has no build libs under build/bin "
+                 f"(need libllama.so, libllama-common.so, libggml*.so). Build llama.cpp first.")
+    if not have_mtp:
+        sys.exit(f"ERROR: LLAMA_DIR={L} lacks gemma-4 MTP support "
+                 f"(needs LLAMA_CONTEXT_TYPE_MTP + llama_set_embeddings_nextn). "
+                 f"Use an MTP-capable llama.cpp checkout, e.g. /home/yvirk2/llama.cpp.")
+    print(f">> building {SRC.name} -> spec_modes (llama.cpp={L})", flush=True)
+    subprocess.run(["g++", "-std=c++17", "-O2", "-o", str(BIN), str(SRC),
+                    f"-I{L}/include", f"-I{L}/common", f"-I{L}/src", f"-I{L}/ggml/include",
+                    f"-L{L}/build/bin", "-lllama-common", "-lllama", "-lggml", "-lggml-base",
+                    f"-Wl,-rpath,{L}/build/bin"], check=True)
+
+
+def render(items):
+    t = jinja2.Environment().from_string((HERE / "gemma4_chat_template.jinja").read_text())
+    return [t.render(messages=it["prompt_messages"], add_generation_prompt=True,
+                     bos_token="", enable_thinking=True) for it in items]
+
+
+def parse_blocks(text):
+    blocks = []
+    for m in re.finditer(r"=== PROMPT (\d+) BEGIN ===\n(.*?)\n=== PROMPT \1 END ===", text, re.DOTALL):
+        body = m.group(2); d = {"idx": int(m.group(1))}
+        md = re.search(r"decoded (\d+) tokens in [\d.]+s = ([\d.]+) tok/s", body)
+        d["decoded"] = int(md.group(1)) if md else 0
+        d["tok_s"]   = float(md.group(2)) if md else 0.0
+        m2 = re.search(r"n_drafted (\d+)", body); d["n_drafted"] = int(m2.group(1)) if m2 else 0
+        m3 = re.search(r"n_accept (\d+)", body);  d["n_accept"]  = int(m3.group(1)) if m3 else 0
+        ti = body.find("TEXT: "); d["text"] = body[ti + 6:] if ti >= 0 else ""
+        blocks.append(d)
+    blocks.sort(key=lambda x: x["idx"])
+    return blocks
+
+
+def run_chunk(mode, items, gpu, n, gamma, seed, out):
+    prompts = render(items)
+    pf = RESULTS / f"prompts_{mode}_gpu{gpu}.txt"
+    pf.write_text("\n<<END_PROMPT>>\n".join(prompts) + "\n<<END_PROMPT>>\n")
+    cmd = [str(BIN), "--mode", mode, "-m", str(TGT), "--seed", str(seed), "-n", str(n), "--gamma", str(gamma)]
+    if mode == "mtp-spec":
+        cmd += ["-md", str(MTP)]
+    env = dict(os.environ); env["CUDA_VISIBLE_DEVICES"] = str(gpu)
+    r = subprocess.run(cmd, stdin=open(pf), capture_output=True, text=True, env=env)
+    (RESULTS / f"raw_{mode}_gpu{gpu}.txt").write_text(r.stdout + "\n--STDERR--\n" + r.stderr[-2000:])
+    blocks = parse_blocks(r.stdout)
+    while len(blocks) < len(items):
+        blocks.append({"decoded": 0, "tok_s": 0, "n_drafted": 0, "n_accept": 0, "text": ""})
+    out[gpu] = list(zip(items, blocks[:len(items)]))
+
+
+def run_mode(mode, items, gpus, n, gamma, seed):
+    print(f">> running mode={mode} on GPUs {','.join(map(str, gpus))} (n={n}, items={len(items)})", flush=True)
+    chunks = {g: items[i::len(gpus)] for i, g in enumerate(gpus)}
+    out = {}
+    threads = [threading.Thread(target=run_chunk, args=(mode, chunks[g], g, n, gamma, seed, out)) for g in gpus]
+    for t in threads: t.start()
+    for t in threads: t.join()
+    paired = [pb for g in gpus for pb in out.get(g, [])]
+
+    lcb_pairs = [(it["uid"], b["text"]) for it, b in paired if it["scorer"] == "lcb"]
+    lcbv = score_lcb(lcb_pairs) if lcb_pairs else {}
+    per = []
+    for it, b in paired:
+        if it["scorer"] == "aime":   ok = score_aime(b["text"], it["gold"])
+        elif it["scorer"] == "mcq":  ok = score_mcq(b["text"], it["gold"])
+        else:                        ok = bool(lcbv.get(it["uid"], False))
+        per.append({"uid": it["uid"], "source": it["source"], "correct": ok, "decoded": b["decoded"],
+                    "tok_s": b["tok_s"], "n_drafted": b["n_drafted"], "n_accept": b["n_accept"]})
+    n_ = len(per) or 1
+    td = sum(p["n_drafted"] for p in per); ta = sum(p["n_accept"] for p in per)
+    summary = {"mode": mode, "n": len(per), "accuracy": sum(p["correct"] for p in per)/n_,
+               "mean_tok_s": sum(p["tok_s"] for p in per)/n_, "accept_rate": (ta/td) if td else None,
+               "per_item": per}
+    json.dump(summary, open(RESULTS / f"mode_{mode}.json", "w"), indent=2)
+    return summary
+
+
+def target_reference():
+    """The fixed target baseline: prefer vanilla_references/target.json, else the hardcode."""
+    f = REFS / "target.json"
+    if f.exists():
+        d = json.load(open(f))
+        return {"mode": "target (reference)", **{k: d.get(k) for k in ("n", "accuracy", "mean_tok_s", "accept_rate")}}
+    return dict(TARGET_REF)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--modes", default="mtp-spec", help="comma list; target baseline is a fixed reference")
+    ap.add_argument("--gpus", default="0,1")
+    ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--n", type=int, default=16384)
+    ap.add_argument("--gamma", type=int, default=4)
+    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--rebuild", action="store_true")
+    args = ap.parse_args()
+    RESULTS.mkdir(exist_ok=True)
+
+    build_if_needed(args.rebuild)
+    items = [json.loads(l) for l in open(HERE / "data" / "items.jsonl")]
+    if args.limit: items = items[:args.limit]
+    gpus = [int(g) for g in args.gpus.split(",")]
+
+    data = {m: run_mode(m, items, gpus, args.n, args.gamma, args.seed)
+            for m in args.modes.split(",") if m != "target"}
+
+    ref = target_reference()
+    base = ref["mean_tok_s"]
+    rows = [ref] + list(data.values())
+    print("\n==== task-eval: initial_program on lite_v1 (target = fixed reference) ====")
+    print(f"{'mode':20s}{'n':>4}{'accuracy':>10}{'tok/s':>9}{'accept':>9}{'speedup':>9}")
+    print("-" * 61)
+    for d in rows:
+        ar = f"{d['accept_rate']*100:.1f}%" if d.get("accept_rate") is not None else "-"
+        sp = f"{d['mean_tok_s']/base:.2f}x" if base else "-"
+        acc = f"{d['accuracy']*100:.1f}%" if d.get("accuracy") is not None else "-"
+        print(f"{d['mode']:20s}{d['n']:>4}{acc:>10}{d['mean_tok_s']:>9.1f}{ar:>9}{sp:>9}")
+    out = {"target_reference": ref,
+           **{m: {k: d[k] for k in ('n', 'accuracy', 'mean_tok_s', 'accept_rate')} for m, d in data.items()}}
+    json.dump(out, open(RESULTS / "task_eval.json", "w"), indent=2)
+    print(f"\n-> {RESULTS / 'task_eval.json'}")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,41 @@
+{
+  "target": {
+    "lcb": 10,
+    "gpqa": 10,
+    "hle": 5,
+    "aime": 5
+  },
+  "selected_uids": [
+    "lcb-hard-04",
+    "lcb-hard-01",
+    "lcb-medium-00",
+    "lcb-hard-06",
+    "lcb-medium-02",
+    "lcb-medium-01",
+    "lcb-medium-04",
+    "lcb-medium-07",
+    "lcb-medium-06",
+    "lcb-medium-08",
+    "gpqa-biol-00",
+    "gpqa-chem-01",
+    "gpqa-phys-06",
+    "gpqa-biol-01",
+    "gpqa-chem-06",
+    "gpqa-phys-00",
+    "gpqa-biol-02",
+    "gpqa-phys-01",
+    "gpqa-biol-03",
+    "gpqa-phys-02",
+    "hle-chem-04",
+    "hle-math-00",
+    "hle-othe-03",
+    "hle-phys-00",
+    "hle-math-02",
+    "aime-1-5-01",
+    "aime-11-15-00",
+    "aime-6-10-01",
+    "aime-1-5-02",
+    "aime-11-15-01"
+  ],
+  "n_selected": 30
+}
