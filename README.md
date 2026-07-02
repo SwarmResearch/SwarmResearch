@@ -18,7 +18,7 @@ The swarm's working directory requires:
   - SwarmResearch skills can be adapted for use without an explicit evaluator. Instead, the orchestrator can judge solution quality. For example, for open-ended data analysis, subagents can analyze data from diverse perspectives while the orchestrator judges and maintains their quality + diversity
 - `baseline` (optional): A minimal working baseline working on your evaluator gets the agent writing successful solutions faster
 
-For an example, check out the [speculative decoding setup](spec_dec_example/spec-dec-swarm-eval).
+For an example, check out the [speculative decoding setup](spec_dec_example/).
 
 We recommend using `/goal` e.g. "/goal Follow the swarmresearch skill. Your search agent budget is 150. Keep going until you completely exhaust it. Your task and objective is in prompt.md."
 
