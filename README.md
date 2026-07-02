@@ -1,4 +1,8 @@
 # SwarmResearch
+
+[![Blog](assets/blog_badge.svg)](https://yuvrajvirk.github.io/blogs/swarmresearch/swarmresearch.html)
+[![Paper](assets/paper_badge.svg)](https://github.com/SwarmResearch/SwarmResearch/blob/main/assets/swarmresearch_paper.pdf)
+
 *SwarmResearch* is a set of skills to orchestrate a population of independent research agents. It's great for letting coding agents loose on open-ended exploration tasks for hours and days without collapsing onto any one direction. 
 
 | Vanilla autoresearch | SwarmResearch |
